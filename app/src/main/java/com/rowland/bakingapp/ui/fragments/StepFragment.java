@@ -3,14 +3,18 @@ package com.rowland.bakingapp.ui.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rowland.bakingapp.R;
 import com.rowland.bakingapp.data.payload.Step;
+import com.rowland.bakingapp.managers.BeepManager;
 
 import java.util.List;
 
@@ -27,10 +31,17 @@ public class StepFragment extends Fragment implements VerticalStepperForm {
     // The class Log identifier
     private static final String LOG_TAG = StepFragment.class.getSimpleName();
 
+    // The Step ID Identifier Key
+    public static final String SELECTED_VIDEO_KEY = "step_video_key";
+
     private List<Step> list;
 
     @BindView(R.id.step_vertical_stepper)
     VerticalStepperFormLayout mStepVerticalLayout;
+
+    interface VideoPlay {
+        void play();
+    }
 
 
     public StepFragment() {
@@ -68,15 +79,23 @@ public class StepFragment extends Fragment implements VerticalStepperForm {
     }
 
     @Override
-    public View createStepContentView(int stepNumber) {
+    public View createStepContentView(final int stepNumber) {
+        final Step step = list.get(stepNumber);
         View stepView = LayoutInflater.from(getContext()).inflate(R.layout.row_step, null, false);
         TextView mDescriptionTextView = (TextView) stepView.findViewById(R.id.step_description);
-        mDescriptionTextView.setText(list.get(stepNumber).getDescription());
+        mDescriptionTextView.setText(step.getDescription());
         ImageView mThumbnailImageView = (ImageView) stepView.findViewById(R.id.step_thumbnail);
         mThumbnailImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // ToDo: use ExoPlayer to play video
+                String videoUrl = step.getVideoURL();
+                if (!videoUrl.isEmpty()) {
+                    Bundle args = new Bundle();
+                    args.putString(SELECTED_VIDEO_KEY, videoUrl);
+                    showVideoFragment(args);
+                } else {
+                    Toast.makeText(getContext(), "No Video is available for this Step", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         return stepView;
@@ -84,11 +103,29 @@ public class StepFragment extends Fragment implements VerticalStepperForm {
 
     @Override
     public void onStepOpening(int stepNumber) {
+        hideVideoFragment();
         mStepVerticalLayout.setStepAsCompleted(stepNumber);
     }
 
     @Override
     public void sendData() {
         //method not needed for now
+        BeepManager bpManager = new BeepManager(getActivity());
+        bpManager.playBeepSoundAndVibrate();
+    }
+
+    // Insert the DetailFragment
+    private void showVideoFragment(Bundle args) {
+        FragmentManager fm = getChildFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        VideoFragment frag = VideoFragment.newInstance(args);
+        ft.replace(R.id.video_fragment_container, frag);
+        ft.commit();
+    }
+
+    private void hideVideoFragment() {
+        FragmentManager fm = getChildFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(fm.findFragmentById(R.id.video_fragment_container));
     }
 }

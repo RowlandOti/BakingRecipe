@@ -23,7 +23,7 @@ public class DetailFragment extends Fragment {
     // Logging Identifier for class
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
 
-    // The Movie ID Identifier Key
+    // The Recipe ID Identifier Key
     public static final String SELECTED_KEY = "recipe_key";
 
     private DetailPagerAdapter mDetailPagerAdpater;
