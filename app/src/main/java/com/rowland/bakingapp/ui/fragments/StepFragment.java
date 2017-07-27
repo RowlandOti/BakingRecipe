@@ -1,6 +1,8 @@
 package com.rowland.bakingapp.ui.fragments;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -26,23 +28,21 @@ import ernestoyaquello.com.verticalstepperform.interfaces.VerticalStepperForm;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class StepFragment extends Fragment implements VerticalStepperForm {
+public class StepFragment extends Fragment implements VerticalStepperForm, VideoFragment.VideoCallBack {
 
     // The class Log identifier
     private static final String LOG_TAG = StepFragment.class.getSimpleName();
 
     // The Step ID Identifier Key
     public static final String SELECTED_VIDEO_KEY = "step_video_key";
+    // The video fragment added Identifier Key
+    public static final String VIDEO_FRAG_ADDED_KEY = "video_frag_added_key";
 
     private List<Step> list;
 
     @BindView(R.id.step_vertical_stepper)
     VerticalStepperFormLayout mStepVerticalLayout;
-
-    interface VideoPlay {
-        void play();
-    }
-
+    private boolean isVideoFragAdded = false;
 
     public StepFragment() {
         // Required empty public constructor
@@ -78,6 +78,7 @@ public class StepFragment extends Fragment implements VerticalStepperForm {
                 .init();
     }
 
+
     @Override
     public View createStepContentView(final int stepNumber) {
         final Step step = list.get(stepNumber);
@@ -103,13 +104,22 @@ public class StepFragment extends Fragment implements VerticalStepperForm {
 
     @Override
     public void onStepOpening(int stepNumber) {
-        hideVideoFragment();
         mStepVerticalLayout.setStepAsCompleted(stepNumber);
+        if (isVideoFragAdded) {
+            hideVideoFragment();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(VIDEO_FRAG_ADDED_KEY, isVideoFragAdded);
+        mStepVerticalLayout.onSaveInstanceState();
     }
 
     @Override
     public void sendData() {
-        //method not needed for now
+        // method not needed for now
         BeepManager bpManager = new BeepManager(getActivity());
         bpManager.playBeepSoundAndVibrate();
     }
@@ -118,14 +128,23 @@ public class StepFragment extends Fragment implements VerticalStepperForm {
     private void showVideoFragment(Bundle args) {
         FragmentManager fm = getChildFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
+        ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+
         VideoFragment frag = VideoFragment.newInstance(args);
+        frag.setVideoCallBack(this);
         ft.replace(R.id.video_fragment_container, frag);
+        ft.addToBackStack("VIDEO_FRAG");
         ft.commit();
+
+        isVideoFragAdded = true;
     }
 
-    private void hideVideoFragment() {
+    @Override
+    public void hideVideoFragment() {
         FragmentManager fm = getChildFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.remove(fm.findFragmentById(R.id.video_fragment_container));
+        while (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStackImmediate();
+        }
+        isVideoFragAdded = false;
     }
 }

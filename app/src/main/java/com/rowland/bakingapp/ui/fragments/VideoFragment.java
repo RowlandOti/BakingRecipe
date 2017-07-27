@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -45,7 +46,19 @@ public class VideoFragment extends Fragment {
 
     @BindView(R.id.video_player)
     SimpleExoPlayerView mExoplayerView;
+    @BindView(R.id.video_player_close)
+    ImageView mExoplayerCloseView;
 
+
+    interface VideoCallBack {
+        void hideVideoFragment();
+    }
+
+    public void setVideoCallBack(VideoCallBack mVideoCallBack) {
+        this.mVideoCallBack = mVideoCallBack;
+    }
+
+    private VideoCallBack mVideoCallBack;
 
     public VideoFragment() {
         // Required empty public constructor
@@ -70,6 +83,13 @@ public class VideoFragment extends Fragment {
         Bundle args = getArguments();
         videoUrl = args.getString(StepFragment.SELECTED_VIDEO_KEY);
         cfgExoPlayer();
+
+        mExoplayerCloseView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mVideoCallBack.hideVideoFragment();
+            }
+        });
     }
 
     @Override

@@ -49,4 +49,5 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.7.0'
     //Exoplayer
     compile 'com.google.android.exoplayer:exoplayer:r2.3.0'
+    compile 'com.rowland.slidingtabstriplayout:slidingTabStripLayout:1.0.0-beta-3'
 }

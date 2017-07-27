@@ -1,12 +1,22 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_horizontal"
     tools:context="com.rowland.bakingapp.ui.fragments.VideoFragment">
+
 
     <com.google.android.exoplayer2.ui.SimpleExoPlayerView
         android:id="@+id/video_player"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/video_player_close"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignLeft="@id/video_player"
+        android:layout_alignTop="@id/video_player"
+        android:src="@drawable/ic_close_white_48dp" />
+
+</RelativeLayout>
